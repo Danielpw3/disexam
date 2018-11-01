@@ -20,6 +20,7 @@ public final class Config {
   private static String SOLR_PATH;
   private static String SOLR_CORE;
   private static long PRODUCT_TTL;
+  private static String ENCRYPYION_KEY; // create a more complex code and store it better -D
 
   public static long getProductTtl() {
     return PRODUCT_TTL;
@@ -65,6 +66,8 @@ public final class Config {
     return SOLR_CORE;
   }
 
+  public static char[] getEncryptionkey() {return ENCRYPYION_KEY.toCharArray();} // create a getter, store it in config.json -D
+
   public static void initializeConfig() throws IOException {
 
     // Init variables to parse JSON
@@ -99,5 +102,6 @@ public final class Config {
     SOLR_PATH = json.get("SOLR_PATH").toString().replace("\"", "");
     SOLR_CORE = json.get("SOLR_CORE").toString().replace("\"", "");
     PRODUCT_TTL = json.get("PRODUCT_TTL").getAsLong();
+    ENCRYPYION_KEY = json.get("ENCRYPYION_KEY").getAsString(); // create a more complex code -D
   }
 }
