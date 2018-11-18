@@ -3,87 +3,62 @@ package controllers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import cache.ProductCache;
 import model.Product;
 import utils.Log;
 
 public class ProductController {
 
   private static DatabaseController dbCon;
+  private static ProductCache productCache;
 
   public ProductController() {
     dbCon = new DatabaseController();
+    productCache = new ProductCache();
   }
 
   public static Product getProduct(int id) {
-
-    // check for connection
-    if (dbCon == null) {
-      dbCon = new DatabaseController();
-    }
-
     // Build the SQL query for the DB
     String sql = "SELECT * FROM product where id=" + id;
-
-    // Run the query in the DB and make an empty object to return
-    ResultSet rs = dbCon.query(sql);
-    Product product = null;
-
-    try {
-      // Get first row and create the object and return it
-      if (rs.next()) {
-        product =
-            new Product(
-                rs.getInt("id"),
-                rs.getString("product_name"),
-                rs.getString("sku"),
-                rs.getFloat("price"),
-                rs.getString("description"),
-                rs.getInt("stock"));
-
-        // Return the product
-        return product;
-      } else {
-        System.out.println("No user found");
-      }
-    } catch (SQLException ex) {
-      System.out.println(ex.getMessage());
-    }
-
-    // Return empty object
-    return product;
+    return getProduct(sql);
   }
 
   public static Product getProductBySku(String sku) {
+    String sql = "SELECT * FROM product where sku='" + sku + "'";
+    return getProduct(sql);
+  }
 
+  private static void checkConnection() {
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
+  }
 
-    String sql = "SELECT * FROM product where sku='" + sku + "'";
+  private static Product getProduct(String sql) {
+
+    checkConnection();
 
     ResultSet rs = dbCon.query(sql);
-    Product product = null;
 
     try {
       if (rs.next()) {
-        product =
-            new Product(
+        return new Product(
                 rs.getInt("id"),
                 rs.getString("product_name"),
                 rs.getString("sku"),
                 rs.getFloat("price"),
                 rs.getString("description"),
                 rs.getInt("stock"));
-
-        return product;
       } else {
-        System.out.println("No user found");
+        // TODO Daniel change to log
+        System.out.println("No product found");
       }
     } catch (SQLException ex) {
+      // TODO Daniel change to log
       System.out.println(ex.getMessage());
     }
-
-    return product;
+    return null;
   }
 
   /**
@@ -93,11 +68,11 @@ public class ProductController {
    */
   public static ArrayList<Product> getProducts() {
 
-    if (dbCon == null) {
-      dbCon = new DatabaseController();
-    }
+    checkConnection();
 
     // TODO: Use caching layer.
+    //return productCache.getProducts(true);
+
     String sql = "SELECT * FROM product";
 
     ResultSet rs = dbCon.query(sql);
@@ -132,9 +107,7 @@ public class ProductController {
     product.setCreatedTime(System.currentTimeMillis() / 1000L);
 
     // Check for DB Connection
-    if (dbCon == null) {
-      dbCon = new DatabaseController();
-    }
+    checkConnection();
 
     // Insert the product in the DB
     int productID = dbCon.insert(

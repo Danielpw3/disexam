@@ -7,7 +7,7 @@ public class User {
   public String lastname;
   public String email;
   private String password;
-  private long createdTime;
+  private long createdTime; // skal initialiseres i konstruktør
 
   public User(int id, String firstname, String lastname, String password, String email) {
     this.id = id;

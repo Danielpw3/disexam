@@ -8,7 +8,7 @@ public class Product {
   public float price;
   private String description;
   private int stock;
-  private long createdTime;
+  private long createdTime; // skal laves om til Date
 
   public Product(int id, String name, String sku, float price, String description, int stock) {
     this.id = id;

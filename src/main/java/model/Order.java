@@ -116,7 +116,7 @@ public class Order {
   }
 
   // Calculate the order total
-  public float calculateOrderTotal(){
+  public float calculateOrderTotal(){ // skal måske rykkes et andet sted hen??
 
     float total = 0;
 

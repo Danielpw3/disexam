@@ -5,7 +5,7 @@ public class LineItem {
   private int id;
   private Product product;
   private int quantity;
-  private float price;
+  private float price; // remove price
 
   public LineItem(int id, Product product, int quantity, float price) {
     this.id = id;
