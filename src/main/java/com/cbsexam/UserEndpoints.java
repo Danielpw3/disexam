@@ -32,6 +32,7 @@ public class UserEndpoints {
     // Convert the user object to json in order to return the object
     String json = new Gson().toJson(user);
     //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
+    //json = new Gson().toJson(json); //konvereter til json format
 
     // Return the user with the status code 200
     // TODO: What should happen if something breaks down?
@@ -59,7 +60,7 @@ public class UserEndpoints {
   }
 
   @POST
-  @Path("/")
+  @Path("/createUser")
   @Consumes(MediaType.APPLICATION_JSON)
   public Response createUser(String body) {
 
@@ -74,8 +75,8 @@ public class UserEndpoints {
 
     // Return the data to the user
     if (createUser != null) {
-      // Return a response with status 200 and JSON as type
-      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+      /// Return a response with status 400 and JSON as type
+      return Response.status(400).entity("Endpoint not implemented yet").build();
     } else {
       return Response.status(400).entity("Could not create user").build();
     }
@@ -85,23 +86,43 @@ public class UserEndpoints {
   @POST
   @Path("/login")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response loginUser(String x) {
+  public Response loginUser(String body) {
 
-    // Return a response with status 200 and JSON as type
-    return Response.status(400).entity("Endpoint not implemented yet").build();
+    // Read the json from body and transfer it to a user class
+    User user = new Gson().fromJson(body, User.class);
+
+    // Get the user back with addet id and return to the user
+    String token = UserController.logingUser(user);
+
+    // Return the data to the user
+    if (token != "") {
+      // Return the users with the status code 200
+      return Response.status(200).type(MediaType.APPLICATION_JSON).entity(token).build();
+    } else {
+      // Return a response with status 400 and JSON as type
+      return Response.status(400).entity("Endpoint not implemented yet").build();
+    }
+
+
   }
 
   // TODO: Make the system able to delete users
+  @POST
+  @Path("/delete")
+  @Consumes(MediaType.APPLICATION_JSON)
   public Response deleteUser(String x) {
 
-    // Return a response with status 200 and JSON as type
+
+    // Return a response with status 400 and JSON as type
     return Response.status(400).entity("Endpoint not implemented yet").build();
   }
 
   // TODO: Make the system able to update users
   public Response updateUser(String x) {
 
-    // Return a response with status 200 and JSON as type
+    // Return a response with status 400 and JSON as type
     return Response.status(400).entity("Endpoint not implemented yet").build();
   }
+
+
 }

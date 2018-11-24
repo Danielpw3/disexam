@@ -22,8 +22,8 @@ public class OrderCache {
     public ArrayList <Order> getOrders (Boolean forceUpdate) {
 
         if (forceUpdate
-                ||((this.created + this.ttl) >= (System.currentTimeMillis()/1000L))
-                || this.orders.isEmpty()) {
+                ||((this.created + this.ttl) <= (System.currentTimeMillis()/1000L)) // mindre end, istedet for og null, istedet ofte isEmpty
+                || this.orders == null) {
             ArrayList <Order> orders = OrderController.getOrders();
 
             this.orders = orders;

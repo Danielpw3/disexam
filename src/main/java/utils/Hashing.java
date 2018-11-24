@@ -4,10 +4,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.bouncycastle.util.encoders.Hex;
-
 public final class Hashing {
 
-  private String salt = "testerHadasdkn"; // salt variabel -D
+  private String salt = "testerHadasdkn"; // salt variabel, skal fixes -D
 
   // TODO: You should add a salt and make this secure
   public static String md5(String rawString) {

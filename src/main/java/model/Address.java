@@ -3,34 +3,34 @@ package model;
 public class Address {
 
   private int id;
-  private String name;
+  private User customer;
   private String streetAddress;
   private String city;
-  private String zipCode;
+  private int zipCode;
 
   public Address(){}
 
-  public Address(int id, String name, String streetAddress, String city, String zipCode){
+  public Address(int id, User customer, String streetAddress, String city, int zipCode){
     this.id = id;
-    this.name = name;
+    this.customer = customer;
     this.streetAddress = streetAddress;
     this.city = city;
     this.zipCode = zipCode;
   }
 
-  public Address(String name, String streetAddress, String city, String zipCode){
-    this.name = name;
+  public Address(User customer, String streetAddress, String city, int zipCode){
+    this.customer = customer;
     this.streetAddress = streetAddress;
     this.city = city;
     this.zipCode = zipCode;
   }
 
-  public String getName() {
-    return name;
+  public User getCustomer() {
+    return customer;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setCustomer(User customer) {
+    this.customer = customer;
   }
 
   public String getStreetAddress() {
@@ -49,11 +49,11 @@ public class Address {
     this.city = city;
   }
 
-  public String getZipCode() {
+  public int getZipCode() {
     return zipCode;
   }
 
-  public void setZipCode(String zipCode) {
+  public void setZipCode(int zipCode) {
     this.zipCode = zipCode;
   }
 

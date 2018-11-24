@@ -45,7 +45,7 @@ public class ProductController {
       if (rs.next()) {
         return new Product(
                 rs.getInt("id"),
-                rs.getString("product_name"),
+                rs.getString("product_name"), // change from "name" to "product_name"
                 rs.getString("sku"),
                 rs.getFloat("price"),
                 rs.getString("description"),
@@ -83,7 +83,7 @@ public class ProductController {
         Product product =
             new Product(
                 rs.getInt("id"),
-                rs.getString("name"),
+                rs.getString("product_name"),
                 rs.getString("sku"),
                 rs.getFloat("price"),
                 rs.getString("description"),

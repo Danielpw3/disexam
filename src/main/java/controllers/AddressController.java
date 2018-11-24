@@ -3,6 +3,7 @@ package controllers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import model.Address;
+import model.User;
 import utils.Log;
 
 public class AddressController {
@@ -27,16 +28,21 @@ public class AddressController {
     ResultSet rs = dbCon.query(sql);
     Address address = null;
 
+
+
     try {
       // Get the first row and build an address object
       if (rs.next()) {
+
+        User user = UserController.getUser(rs.getInt("user_id"));
+
         address =
             new Address(
                 rs.getInt("id"),
-                rs.getString("name"),
+                user,
                 rs.getString("street_address"),
                 rs.getString("city"),
-                rs.getString("zipcode")
+                rs.getInt("zipcode")
                 );
 
         // Return our newly added object
@@ -64,13 +70,13 @@ public class AddressController {
 
     // Insert the product in the DB
     int addressID = dbCon.insert(
-        "INSERT INTO address(name, city, zipcode, street_address) VALUES('"
-            + address.getName()
-            + "', '"
+        "INSERT INTO address(user_id, city, zipcode, street_address) VALUES("
+            + address.getCustomer()
+            + ", '"
             + address.getCity()
-            + "', '"
+            + "', "
             + address.getZipCode()
-            + "', '"
+            + ", '"
             + address.getStreetAddress()
             + "')");
 
