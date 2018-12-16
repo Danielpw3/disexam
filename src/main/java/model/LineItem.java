@@ -5,19 +5,17 @@ public class LineItem {
   private int id;
   private Product product;
   private int quantity;
-  private float price; // remove price
+  // remove price, because product has price
 
-  public LineItem(int id, Product product, int quantity, float price) {
+  public LineItem(int id, Product product, int quantity) {
     this.id = id;
     this.product = product;
     this.quantity = quantity;
-    this.price = price;
   }
 
   public LineItem(Product product, int quantity, float price) {
     this.product = product;
     this.quantity = quantity;
-    this.price = price;
   }
 
   public int getId() {
@@ -44,11 +42,4 @@ public class LineItem {
     this.quantity = quantity;
   }
 
-  public float getPrice() {
-    return price;
-  }
-
-  public void setPrice(float price) {
-    this.price = price;
-  }
 }

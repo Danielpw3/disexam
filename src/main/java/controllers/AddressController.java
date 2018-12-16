@@ -60,6 +60,11 @@ public class AddressController {
 
   public static Address createAddress(Address address) {
 
+    if (address.getId() != 0) {
+      // address already created
+      return address;
+    }
+
     // Write in log that we've reach this step
     Log.writeLog(ProductController.class.getName(), address, "Actually creating a line item in DB", 0);
 

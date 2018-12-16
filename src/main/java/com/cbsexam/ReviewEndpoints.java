@@ -30,7 +30,7 @@ public class ReviewEndpoints {
     //json = Encryption.encryptDecryptXOR(json); // //add encryption to JSON -D
 
     // Return a response with status 200 and JSON as type
-    return Response.status(200).type(MediaType.APPLICATION_JSON).entity(json).build();
+    return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
   }
 
 

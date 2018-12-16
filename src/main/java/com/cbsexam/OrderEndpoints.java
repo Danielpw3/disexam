@@ -16,6 +16,12 @@ import utils.Encryption;
 @Path("order")
 public class OrderEndpoints {
 
+  private static OrderController orderController;
+
+  public OrderEndpoints () {
+    orderController = new OrderController();
+  }
+
   /**
    * @param idOrder
    * @return Responses
@@ -25,7 +31,7 @@ public class OrderEndpoints {
   public Response getOrder(@PathParam("idOrder") int idOrder) {
 
     // Call our controller-layer in order to get the order from the DB
-    Order order = OrderController.getOrder(idOrder);
+    Order order = orderController.getOrder(idOrder);
 
     // TODO: Add Encryption to JSON - FIXED
     // We convert the java object to json with GSON library imported in Maven
@@ -33,7 +39,7 @@ public class OrderEndpoints {
     //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
 
     // Return a response with status 200 and JSON as type
-    return Response.status(200).type(MediaType.APPLICATION_JSON).entity(json).build();
+    return Response.status(order != null ? Response.Status.OK : Response.Status.NOT_FOUND).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
   }
 
   /** @return Responses */
@@ -42,7 +48,7 @@ public class OrderEndpoints {
   public Response getOrders() {
 
     // Call our controller-layer in order to get the order from the DB
-    ArrayList<Order> orders = OrderController.getOrders();
+    ArrayList<Order> orders = orderController.getOrders();
 
     // TODO: Add Encryption to JSON - FIXED
     // We convert the java object to json with GSON library imported in Maven
@@ -50,7 +56,7 @@ public class OrderEndpoints {
     //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
 
     // Return a response with status 200 and JSON as type
-    return Response.status(200).type(MediaType.TEXT_PLAIN_TYPE).entity(json).build();
+    return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
   }
 
   @POST
@@ -62,7 +68,7 @@ public class OrderEndpoints {
     Order newOrder = new Gson().fromJson(body, Order.class);
 
     // Use the controller to add the user
-    Order createdOrder = OrderController.createOrder(newOrder);
+    Order createdOrder = orderController.createOrder(newOrder);
 
     // Get the user back with the added ID and return it to the user
     String json = new Gson().toJson(createdOrder);
@@ -70,11 +76,11 @@ public class OrderEndpoints {
     // Return the data to the user
     if (createdOrder != null) {
       // Return a response with status 200 and JSON as type
-      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+      return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
     } else {
 
       // Return a response with status 400 and a message in text
-      return Response.status(400).entity("Could not create user").build();
+      return Response.status(Response.Status.BAD_REQUEST).entity("Could not create user").build();
     }
   }
 }

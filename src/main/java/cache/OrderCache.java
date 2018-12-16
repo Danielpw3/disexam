@@ -6,7 +6,7 @@ import utils.Config;
 
 import java.util.ArrayList;
 
-//TODO: Build this cache and use it.
+//TODO: Build this cache and use it. - Fixed (getOrders)
 public class OrderCache {
 
     private ArrayList <Order> orders;
@@ -24,7 +24,8 @@ public class OrderCache {
         if (forceUpdate
                 ||((this.created + this.ttl) <= (System.currentTimeMillis()/1000L)) // mindre end, istedet for og null, istedet ofte isEmpty
                 || this.orders == null) {
-            ArrayList <Order> orders = OrderController.getOrders();
+            // Read orders from the database
+            ArrayList <Order> orders = OrderController.getOrdersFromDb();
 
             this.orders = orders;
             this.created = System.currentTimeMillis()/1000L;
@@ -32,5 +33,13 @@ public class OrderCache {
         return this.orders;
     }
 
+    // Add order to cache
+    public void addOrder(Order order) {
+        this.orders.add(order);
+    }
 
+    // Remove order to cache
+    public void removeOrder(Order order) {
+        this.orders.remove(order);
+    }
 }

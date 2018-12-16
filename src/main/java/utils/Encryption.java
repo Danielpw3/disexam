@@ -3,8 +3,7 @@ package utils;
 public final class Encryption {
 
   public static String encryptDecryptXOR(String rawString) {
-
-    // If encryption is enabled in Config.
+     // If encryption is enabled in Config.
     if (Config.getEncryption()) {
 
       // The key is predefined and hidden in code

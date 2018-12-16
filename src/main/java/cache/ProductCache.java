@@ -30,7 +30,7 @@ public class ProductCache {
         || this.products == null) {
 
       // Get products from controller, since we wish to update.
-      ArrayList<Product> products = ProductController.getProducts();
+      ArrayList<Product> products = ProductController.getProductsFromDb();
 
       // Set products for the instance and set created timestamp
       this.products = products;
@@ -40,4 +40,10 @@ public class ProductCache {
     // Return the documents
     return this.products;
   }
+
+  // Add product to cache
+  public void addProduct(Product product) {
+    this.products.add(product);
+  }
+
 }

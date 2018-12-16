@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Order {
 
@@ -10,8 +11,8 @@ public class Order {
   private Address billingAddress;
   private Address shippingAddress;
   private float orderTotal;
-  private long createdAt;
-  private long updatedAt;
+  private Date createdAt;
+  private Date updatedAt;
 
   public Order() {}
 
@@ -21,8 +22,8 @@ public class Order {
       Address billingAddress,
       Address shippingAddress,
       float orderTotal,
-      long createdAt,
-      long updatedAt) {
+      Date createdAt,
+      Date updatedAt) {
     this.customer = customer;
     this.lineItems = lineItems;
     this.billingAddress = billingAddress;
@@ -39,8 +40,8 @@ public class Order {
       Address billingAddress,
       Address shippingAddress,
       float orderTotal,
-      long createdAt,
-      long updatedAt) {
+      Date createdAt,
+      Date updatedAt) {
     this.id = id;
     this.customer = customer;
     this.lineItems = lineItems;
@@ -99,31 +100,31 @@ public class Order {
     this.orderTotal = orderTotal;
   }
 
-  public long getCreatedAt() {
+  public Date getCreatedAt() {
     return createdAt;
   }
 
-  public void setCreatedAt(long createdAt) {
+  public void setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
   }
 
-  public long getUpdatedAt() {
+  public Date getUpdatedAt() {
     return updatedAt;
   }
 
-  public void setUpdatedAt(long updatedAt) {
+  public void setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
   }
 
   // Calculate the order total
-  public float calculateOrderTotal(){ // skal måske rykkes et andet sted hen??
+  public float calculateOrderTotal(){
 
     float total = 0;
 
     //Loop through each item to calculate the total
     for(LineItem item : this.getLineItems()){
 
-      total += item.getPrice();
+      total += item.getProduct().getPrice(); // use price from Product
     }
 
     this.setOrderTotal(total);

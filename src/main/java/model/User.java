@@ -14,7 +14,7 @@ public class User {
   private Date createdTime; // skal initialiseres i konstruktør
   private String token; // bruges til delete og update User _D
 
-  // Used when creating users
+  // Used when creating user
   public User(int id, String firstname, String lastname, String password, String email, int phoneNumber, int salt) {
     this.id = id;
     this.firstname = firstname;

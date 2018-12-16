@@ -16,6 +16,13 @@ import utils.Encryption;
 @Path("product")
 public class ProductEndpoints {
 
+  private static ProductController productController;
+
+  public ProductEndpoints () {
+    productController = new ProductController();
+  }
+
+
   /**
    * @param idProduct
    * @return Responses
@@ -25,15 +32,15 @@ public class ProductEndpoints {
   public Response getProduct(@PathParam("idProduct") int idProduct) {
 
     // Call our controller-layer in order to get the order from the DB
-    Product product = ProductController.getProduct(idProduct);
+    Product product = productController.getProduct(idProduct);
 
     // TODO: Add Encryption to JSON - FIXED
     // We convert the java object to json with GSON library imported in Maven
-    String json = new Gson().toJson(product);
+    String json = product != null ? new Gson().toJson(product) : "Product with id="+idProduct+" was not found";
     //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
 
     // Return a response with status 200 and JSON as type
-    return Response.status(200).type(MediaType.TEXT_PLAIN_TYPE).entity(json).build();
+    return Response.status(product != null ? Response.Status.OK : Response.Status.NOT_FOUND).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
   }
 
   /** @return Responses */
@@ -42,7 +49,7 @@ public class ProductEndpoints {
   public Response getProducts() {
 
     // Call our controller-layer in order to get the order from the DB
-    ArrayList<Product> products = ProductController.getProducts();
+    ArrayList<Product> products = productController.getProducts();
 
     // TODO: Add Encryption to JSON - FIXED
     // We convert the java object to json with GSON library imported in Maven
@@ -50,11 +57,11 @@ public class ProductEndpoints {
     //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
 
     // Return a response with status 200 and JSON as type
-    return Response.status(200).type(MediaType.TEXT_PLAIN_TYPE).entity(json).build();
+    return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
   }
 
   @POST
-  @Path("/")
+  @Path("/createProduct")
   @Consumes(MediaType.APPLICATION_JSON)
   public Response createProduct(String body) {
 
@@ -62,7 +69,7 @@ public class ProductEndpoints {
     Product newProduct = new Gson().fromJson(body, Product.class);
 
     // Use the controller to add the user
-    Product createdProduct = ProductController.createProduct(newProduct);
+    Product createdProduct = productController.createProduct(newProduct);
 
     // Get the user back with the added ID and return it to the user
     String json = new Gson().toJson(createdProduct);
@@ -70,9 +77,9 @@ public class ProductEndpoints {
     // Return the data to the user
     if (createdProduct != null) {
       // Return a response with status 200 and JSON as type
-      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+      return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
     } else {
-      return Response.status(400).entity("Could not create user").build();
+      return Response.status(Response.Status.BAD_REQUEST).entity("Could not create product").build();
     }
   }
 }

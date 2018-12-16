@@ -2,7 +2,10 @@ package controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import cache.ProductCache;
 import model.Product;
@@ -19,16 +22,51 @@ public class ProductController {
   }
 
   public static Product getProduct(int id) {
+    for (Product product : productCache.getProducts(false)) {
+      if (product.getId() == id) {
+        // product found in cache
+        return product;
+      }
+    }
+
+    // Product not found in cache
+    Product productFoundInDb = getProductFromDb(id);
+    if (productFoundInDb != null) {
+      // Add product found in database into cache
+      productCache.addProduct(productFoundInDb);
+    }
+    return productFoundInDb;
+  }
+
+  public static Product getProductFromDb(int id) {
     // Build the SQL query for the DB
     String sql = "SELECT * FROM product where id=" + id;
     return getProduct(sql);
   }
 
   public static Product getProductBySku(String sku) {
+    for (Product product : productCache.getProducts(false)) {
+      if (product.getSku() == sku) {
+        // product found in cache
+        return product;
+      }
+    }
+
+    // Product not found in cache
+    Product productFoundInDb = getProductBySkuFromDb(sku);
+    if (productFoundInDb != null) {
+      // Add product found in database into cache
+      productCache.addProduct(productFoundInDb);
+    }
+    return productFoundInDb;
+  }
+
+  public static Product getProductBySkuFromDb(String sku) {
     String sql = "SELECT * FROM product where sku='" + sku + "'";
     return getProduct(sql);
   }
 
+  // method for checking connection
   private static void checkConnection() {
     if (dbCon == null) {
       dbCon = new DatabaseController();
@@ -49,16 +87,28 @@ public class ProductController {
                 rs.getString("sku"),
                 rs.getFloat("price"),
                 rs.getString("description"),
-                rs.getInt("stock"));
+                rs.getInt("stock"),
+                rs.getTimestamp("created_at"));
       } else {
-        // TODO Daniel change to log
-        System.out.println("No product found");
+        // Changed to log
+        Log.writeLog(ProductController.class.getName(), null,"No product found", 0);
+
       }
     } catch (SQLException ex) {
-      // TODO Daniel change to log
-      System.out.println(ex.getMessage());
+      // changed to log
+      Log.writeLog(ProductController.class.getName(), null,"getProduct Message="+ ex.getMessage(), 1);
     }
     return null;
+  }
+
+  /**
+   * Get all products using cache
+   *
+   * @return
+   */
+  public static ArrayList<Product> getProducts() {
+    // TODO: Use caching layer. - Fixed
+    return productCache.getProducts(false);
   }
 
   /**
@@ -66,13 +116,8 @@ public class ProductController {
    *
    * @return
    */
-  public static ArrayList<Product> getProducts() {
-
+  public static ArrayList<Product> getProductsFromDb() {
     checkConnection();
-
-    // TODO: Use caching layer.
-    //return productCache.getProducts(true);
-
     String sql = "SELECT * FROM product";
 
     ResultSet rs = dbCon.query(sql);
@@ -87,15 +132,21 @@ public class ProductController {
                 rs.getString("sku"),
                 rs.getFloat("price"),
                 rs.getString("description"),
-                rs.getInt("stock"));
+                rs.getInt("stock"),
+                rs.getTimestamp("created_at"));
 
         products.add(product);
       }
     } catch (SQLException ex) {
-      System.out.println(ex.getMessage());
+      Log.writeLog(ProductController.class.getName(), null,"getProducts Message="+ ex.getMessage(), 1);
     }
 
     return products;
+  }
+
+  public static String DateToTimeStamp(Date date) {
+    Timestamp sq = new Timestamp(date.getTime());
+    return sq.toString();
   }
 
   public static Product createProduct(Product product) {
@@ -104,30 +155,33 @@ public class ProductController {
     Log.writeLog(ProductController.class.getName(), product, "Actually creating a product in DB", 0);
 
     // Set creation time for product.
-    product.setCreatedTime(System.currentTimeMillis() / 1000L);
+    //product.setCreatedTime(System.currentTimeMillis() / 1000L);
 
     // Check for DB Connection
     checkConnection();
 
-    // Insert the product in the DB
-    int productID = dbCon.insert(
-        "INSERT INTO product(product_name, sku, price, description, stock, created_at) VALUES('"
+    String sql = "INSERT INTO product(product_name, sku, price, description, stock, created_at) VALUES('"
             + product.getName()
             + "', '"
             + product.getSku()
-            + "', '"
+            + "', "
             + product.getPrice()
-            + "', '"
+            + ", '"
             + product.getDescription()
             + "', "
             + product.getStock()
-            + "', "
-            + product.getCreatedTime()
-            + ")");
+            + ", '"
+            + DateToTimeStamp(product.getCreatedTime())
+            + "')";
+
+    // Insert the product in the DB
+    int productID = dbCon.insert(sql);
 
     if (productID != 0) {
       //Update the productid of the product before returning
       product.setId(productID);
+      // add product to cache
+      productCache.addProduct(product);
     } else{
       // Return null if product has not been inserted into database
       return null;

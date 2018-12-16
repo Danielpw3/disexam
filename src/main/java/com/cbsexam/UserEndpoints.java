@@ -3,19 +3,20 @@ package com.cbsexam;
 import com.google.gson.Gson;
 import controllers.UserController;
 import java.util.ArrayList;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.User;
-import utils.Encryption;
 import utils.Log;
 
 @Path("user")
 public class UserEndpoints {
+
+  private static UserController userController;
+
+  public UserEndpoints () {
+    userController = new UserController();
+  }
 
   /**
    * @param idUser
@@ -25,18 +26,25 @@ public class UserEndpoints {
   @Path("/{idUser}")
   public Response getUser(@PathParam("idUser") int idUser) {
 
-    // Use the ID to get the user from the controller.
-    User user = UserController.getUser(idUser);
+    User user = null;
+    try {
+      // Use the ID to get the user from the controller.
+      user = userController.getUser(idUser);
 
-    // TODO: Add Encryption to JSON - FIXED
-    // Convert the user object to json in order to return the object
-    String json = new Gson().toJson(user);
-    //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
-    //json = new Gson().toJson(json); //konvereter til json format
+      // TODO: Add Encryption to JSON - FIXED
+      // Convert the user object to json in order to return the object
+      String json = new Gson().toJson(user);
+      //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
+      //json = new Gson().toJson(json); //konvereter til json format
 
-    // Return the user with the status code 200
-    // TODO: What should happen if something breaks down?
-    return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+      // Return the user with the status OK code 200
+      // If user is not found
+      // TODO: What should happen if something breaks down? - Fixed
+        return Response.status(user != null ? Response.Status.OK : Response.Status.NOT_FOUND).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+    } catch (Exception ex) {
+      Log.writeLog(UserEndpoints.class.getName(), user,"getUser Message=" + ex.getMessage(), 1);
+      return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON_TYPE).entity("").build();
+    }
   }
 
   /** @return Responses */
@@ -48,7 +56,7 @@ public class UserEndpoints {
     Log.writeLog(this.getClass().getName(), this, "Get all users", 0);
 
     // Get a list of users
-    ArrayList<User> users = UserController.getUsers();
+    ArrayList<User> users = userController.getUsers();
 
     // TODO: Add Encryption to JSON - FIXED
     // Transfer users to json in order to return it to the user
@@ -56,7 +64,7 @@ public class UserEndpoints {
     //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
 
     // Return the users with the status code 200
-    return Response.status(200).type(MediaType.APPLICATION_JSON).entity(json).build();
+    return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(json).build();
   }
 
   @POST
@@ -68,21 +76,24 @@ public class UserEndpoints {
     User newUser = new Gson().fromJson(body, User.class);
 
     // Use the controller to add the user
-    User createUser = UserController.createUser(newUser);
+    User createUser = userController.createUser(newUser);
 
     // Get the user back with the added ID and return it to the user
     String json = new Gson().toJson(createUser);
 
+    // TODO: Add encryption
+
     // Return the data to the user
     if (createUser != null) {
-      /// Return a response with status 400 and JSON as type
-      return Response.status(400).entity("Endpoint not implemented yet").build();
+      // Return a response with status 200 and JSON as type
+      return Response.status(Response.Status.OK).entity("The user is created").build();
     } else {
-      return Response.status(400).entity("Could not create user").build();
+      // Return a response with status 400 and JSON as type
+      return Response.status(Response.Status.BAD_REQUEST).entity("Could not create user").build();
     }
   }
 
-  // TODO: Make the system able to login users and assign them a token to use throughout the system.
+  // TODO: Make the system able to login users and assign them a token to use throughout the system. -Fixed
   @POST
   @Path("/login")
   @Consumes(MediaType.APPLICATION_JSON)
@@ -92,37 +103,51 @@ public class UserEndpoints {
     User user = new Gson().fromJson(body, User.class);
 
     // Get the user back with addet id and return to the user
-    String token = UserController.logingUser(user);
+    String token = userController.loginUser(user);
 
     // Return the data to the user
     if (token != "") {
       // Return the users with the status code 200
-      return Response.status(200).type(MediaType.APPLICATION_JSON).entity(token).build();
+      return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(token).build();
     } else {
       // Return a response with status 400 and JSON as type
-      return Response.status(400).entity("Endpoint not implemented yet").build();
+      return Response.status(Response.Status.BAD_REQUEST).entity("Could not login").build();
     }
-
-
   }
 
   // TODO: Make the system able to delete users
-  @POST
+  @DELETE
   @Path("/delete")
-  @Consumes(MediaType.APPLICATION_JSON)
-  public Response deleteUser(String x) {
+  public Response deleteUser(String body) {
 
+      User user = new Gson (). fromJson(body, User.class);
 
-    // Return a response with status 400 and JSON as type
-    return Response.status(400).entity("Endpoint not implemented yet").build();
+    // Return the data to the user
+    if (userController.deleteUser(user.getToken())) {
+
+      // Return a response with status 200 and JSON as type
+      return Response.status(Response.Status.OK).entity("The user is deleted from the system").build();
+    } else {
+      // Return a response with status 400 and JSON as type
+      return Response.status(Response.Status.BAD_REQUEST).entity("The user cannot be found in the system").build();
+    }
   }
 
   // TODO: Make the system able to update users
-  public Response updateUser(String x) {
+  @POST
+  @Path("/updateUser")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response updateUser(String body) {
 
-    // Return a response with status 400 and JSON as type
-    return Response.status(400).entity("Endpoint not implemented yet").build();
+    User user = new Gson().fromJson(body, User.class);
+
+    // Return the data to the user
+    if (userController.updateUser(user, user.getToken())) {
+      // Return a response with status 200 and JSON as type
+      return Response.status(Response.Status.OK).entity("The user is updated in the system").build();
+    } else {
+      // Return a response with status 400 and JSON as type
+      return Response.status(Response.Status.BAD_REQUEST).entity("The user cannot be updatede").build();
+    }
   }
-
-
 }

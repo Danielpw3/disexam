@@ -42,8 +42,7 @@ public class LineItemController {
             new LineItem(
                 rs.getInt("id"),
                 product,
-                rs.getInt("quantity"),
-                rs.getFloat("price"));
+                rs.getInt("quantity"));
 
         // Add it to our list of items and return it
         items.add(lineItem);
@@ -57,6 +56,10 @@ public class LineItemController {
   }
 
   public static LineItem createLineItem(LineItem lineItem, int orderID) {
+    if (lineItem.getId() != 0) {
+      // lineItem already added
+      return lineItem;
+    }
 
     // Write in log that we've reach this step
     Log.writeLog(ProductController.class.getName(), lineItem, "Actually creating a line item in DB", 0);
@@ -73,12 +76,10 @@ public class LineItemController {
 
     // Insert the product in the DB
     int lineItemID = dbCon.insert(
-        "INSERT INTO line_item(product_id, order_id, price, quantity) VALUES("
+        "INSERT INTO line_item(product_id, order_id, quantity) VALUES("
             + lineItem.getProduct().getId()
             + ", "
             + orderID
-            + ", "
-            + lineItem.getPrice()
             + ", "
             + lineItem.getQuantity()
             + ")");

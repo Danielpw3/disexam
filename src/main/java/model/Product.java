@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Date;
+
 public class Product {
 
   public int id;
@@ -8,8 +10,9 @@ public class Product {
   public float price;
   private String description;
   private int stock;
-  private long createdTime; // skal laves om til Date
+  private Date createdTime; // skal laves om til Date
 
+  // Used when creating product
   public Product(int id, String name, String sku, float price, String description, int stock) {
     this.id = id;
     this.name = name;
@@ -17,6 +20,18 @@ public class Product {
     this.price = price;
     this.description = description;
     this.stock = stock;
+    this.createdTime = new Date(System.currentTimeMillis()/1000L);
+  }
+
+  // Used when reading from database
+  public Product(int id, String name, String sku, float price, String description, int stock, Date createdTime) {
+    this.id = id;
+    this.name = name;
+    this.sku = sku;
+    this.price = price;
+    this.description = description;
+    this.stock = stock;
+    this.createdTime = createdTime;
   }
 
   public int getId() {
@@ -59,11 +74,11 @@ public class Product {
     this.description = description;
   }
 
-  public long getCreatedTime() {
+  public Date getCreatedTime() {
     return createdTime;
   }
 
-  public void setCreatedTime(long createdTime) {
+  public void setCreatedTime(Date createdTime) {
     this.createdTime = createdTime;
   }
 
