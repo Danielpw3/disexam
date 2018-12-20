@@ -37,7 +37,7 @@ public class ProductEndpoints {
     // TODO: Add Encryption to JSON - FIXED
     // We convert the java object to json with GSON library imported in Maven
     String json = product != null ? new Gson().toJson(product) : "Product with id="+idProduct+" was not found";
-    //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
+    json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
 
     // Return a response with status 200 and JSON as type
     return Response.status(product != null ? Response.Status.OK : Response.Status.NOT_FOUND).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
@@ -54,7 +54,7 @@ public class ProductEndpoints {
     // TODO: Add Encryption to JSON - FIXED
     // We convert the java object to json with GSON library imported in Maven
     String json = new Gson().toJson(products);
-    //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
+    json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
 
     // Return a response with status 200 and JSON as type
     return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();

@@ -39,10 +39,10 @@ public class AddressController {
         address =
             new Address(
                 rs.getInt("id"),
-                user,
+                rs.getString("name"),
                 rs.getString("street_address"),
                 rs.getString("city"),
-                rs.getInt("zipcode")
+                rs.getString("zipcode")
                 );
 
         // Return our newly added object
@@ -75,13 +75,13 @@ public class AddressController {
 
     // Insert the product in the DB
     int addressID = dbCon.insert(
-        "INSERT INTO address(user_id, city, zipcode, street_address) VALUES("
+        "INSERT INTO address(name, city, zipcode, street_address) VALUES('"
             + address.getCustomer()
-            + ", '"
+            + "', '"
             + address.getCity()
-            + "', "
+            + "', '"
             + address.getZipCode()
-            + ", '"
+            + "', '"
             + address.getStreetAddress()
             + "')");
 

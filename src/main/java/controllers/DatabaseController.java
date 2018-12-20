@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import utils.Config;
+import utils.Log;
 
 public class DatabaseController {
 
@@ -22,9 +23,10 @@ public class DatabaseController {
    * @return a Connection object
    */
   public static Connection getConnection() {
+    String url="";
     try {
       // Set the dataabase connect with the data from the config
-      String url =
+      url =
           "jdbc:mysql://"
               + Config.getDatabaseHost()
               + ":"
@@ -43,7 +45,7 @@ public class DatabaseController {
       connection = DriverManager.getConnection(url, user, password);
 
     } catch (SQLException e) {
-      System.out.println(e.getMessage());
+      Log.writeLog(DatabaseController.class.getName(), null,"getConnecetion url="+url+ " Message=" + e.getMessage(), 1);
     }
 
     return connection;
@@ -57,9 +59,9 @@ public class DatabaseController {
   public ResultSet query(String sql) {
 
     // Check if we have a connection
-    if (connection == null)
+    if (connection == null) {
       connection = getConnection();
-
+    }
 
     // We set the resultset as empty.
     ResultSet rs = null;
@@ -74,7 +76,7 @@ public class DatabaseController {
       // Return the results
       return rs;
     } catch (SQLException e) {
-      System.out.println(e.getMessage());
+      Log.writeLog(DatabaseController.class.getName(), null,"query sql="+sql+ " Message=" + e.getMessage(), 1);
     }
 
     // Return the resultset which at this point will be null
@@ -87,8 +89,9 @@ public class DatabaseController {
     int result = 0;
 
     // Check that we have connection
-    if (connection == null)
+    if (connection == null) {
       connection = getConnection();
+    }
 
     try {
       // Build the statement up in a safe way
@@ -104,7 +107,7 @@ public class DatabaseController {
         return generatedKeys.getInt(1);
       }
     } catch (SQLException e) {
-      System.out.println(e.getMessage());
+      Log.writeLog(DatabaseController.class.getName(), null,"insert sql="+sql+ " Message=" + e.getMessage(), 1);
     }
 
     // Return the resultset which at this point will be null

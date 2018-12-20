@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
+
 
 import cache.OrderCache;
 import model.Address;
@@ -23,8 +23,14 @@ public class OrderController {
     orderCache = new OrderCache();
   }
 
+  public static OrderCache getOrderCache() {
+    if (orderCache == null) {
+      orderCache = new OrderCache();
+    }
+    return orderCache;
+  }
   public static Order getOrder (int id) {
-    for (Order order : orderCache.getOrders(false)) {
+    for (Order order : getOrderCache().getOrders(false)) {
       if (order.getId() == id) {
         // order found in cache
         return order;
@@ -35,10 +41,11 @@ public class OrderController {
     Order orderFoundInDb = getOrderFromDb(id);
     if (orderFoundInDb != null) {
       // Add order found in database into cache
-      orderCache.addOrder(orderFoundInDb);
+      getOrderCache().addOrder(orderFoundInDb);
     }
     return orderFoundInDb;
   }
+
 
   public static Order getOrderFromDb (int id) {
 
@@ -73,8 +80,8 @@ public class OrderController {
                 billingAddress,
                 shippingAddress,
                 rs.getFloat("order_total"),
-                rs.getTimestamp("created_at"),
-                rs.getTimestamp("updated_at"));
+                rs.getLong("created_at"),
+                rs.getLong("updated_at"));
 
         // Returns the build order
         return order;
@@ -90,14 +97,15 @@ public class OrderController {
   }
 
   public static ArrayList<Order> getOrders() {
-    return orderCache.getOrders(false);
+    return getOrderCache().getOrders(false);
   }
+
   /**
    * Get all orders in database
    *
    * @return
    */
-  public static ArrayList<Order> getOrdersFromDb() {
+  public static ArrayList<Order> getOrdersFromdb() {
 
     if (dbCon == null) {
       dbCon = new DatabaseController();
@@ -126,8 +134,8 @@ public class OrderController {
                 billingAddress,
                 shippingAddress,
                 rs.getFloat("order_total"),
-                rs.getTimestamp("created_at"),
-                rs.getTimestamp("updated_at"));
+                rs.getLong("created_at"),
+                rs.getLong("updated_at"));
 
         // Add order to our list
         orders.add(order);
@@ -153,10 +161,11 @@ public class OrderController {
 
       // sets autocommit to false, så we can decide when we commit
       conection.setAutoCommit(false);
+      conection.setAutoCommit(false);
 
       // Set creation and updated time for order.
-      order.setCreatedAt(new Date(System.currentTimeMillis() / 1000L));
-      order.setUpdatedAt(new Date(System.currentTimeMillis() / 1000L));
+      order.setCreatedAt(System.currentTimeMillis() / 1000L);
+      order.setUpdatedAt(System.currentTimeMillis() / 1000L);
 
       // Check for DB Connection
       if (dbCon == null) {
@@ -184,14 +193,14 @@ public class OrderController {
                       + order.calculateOrderTotal()
                       + ", "
                       + order.getCreatedAt()
-                      + ", '"
+                      + ", "
                       + order.getUpdatedAt()
-                      + "')");
+                      + ")");
 
       if (orderID != 0) {
         //Update the productid of the product before returning
         order.setId(orderID);
-        orderCache.addOrder(order);
+        getOrderCache().addOrder(order);
       }
 
       // Create an empty list in order to go trough items and then save them back with ID
@@ -204,12 +213,14 @@ public class OrderController {
 
         // Insert the line item in the DB
         dbCon.insert(
-                "INSERT INTO line_item(id, product_id, order_id, quantity) VALUES("
+                "INSERT INTO line_item(id, product_id, order_id, price, quantity) VALUES("
                         + item.getId()
                         + ", "
                         + item.getProduct().getId()
                         + ", "
                         + order.getId()
+                        + ", "
+                        + item.getProduct().getPrice()
                         + ", "
                         + item.getQuantity()
                         + ")");
@@ -227,7 +238,7 @@ public class OrderController {
         try {
           System.err.print("Transaction is being rolled back");
           // remove order from cache because exception happend
-          orderCache.removeOrder(order);
+          getOrderCache().removeOrder(order);
           conection.rollback();
         } catch (SQLException excep) {
           Log.writeLog(OrderController.class.getName(), null,"createOrder (rollback) Message="+ excep.getMessage(), 1);

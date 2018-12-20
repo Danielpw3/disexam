@@ -76,10 +76,12 @@ public class LineItemController {
 
     // Insert the product in the DB
     int lineItemID = dbCon.insert(
-        "INSERT INTO line_item(product_id, order_id, quantity) VALUES("
+        "INSERT INTO line_item(product_id, order_id, price, quantity) VALUES("
             + lineItem.getProduct().getId()
             + ", "
             + orderID
+            + ", "
+            + lineItem.getProduct().getPrice()
             + ", "
             + lineItem.getQuantity()
             + ")");

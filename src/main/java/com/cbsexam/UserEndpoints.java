@@ -1,5 +1,6 @@
 package com.cbsexam;
 
+import cache.UserCache;
 import com.google.gson.Gson;
 import controllers.UserController;
 import java.util.ArrayList;
@@ -7,12 +8,14 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.User;
+import utils.Encryption;
 import utils.Log;
 
 @Path("user")
 public class UserEndpoints {
 
   private static UserController userController;
+
 
   public UserEndpoints () {
     userController = new UserController();
@@ -29,13 +32,12 @@ public class UserEndpoints {
     User user = null;
     try {
       // Use the ID to get the user from the controller.
-      user = userController.getUser(idUser);
+      user = UserController.getUser(idUser);
 
       // TODO: Add Encryption to JSON - FIXED
       // Convert the user object to json in order to return the object
       String json = new Gson().toJson(user);
-      //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
-      //json = new Gson().toJson(json); //konvereter til json format
+      json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
 
       // Return the user with the status OK code 200
       // If user is not found
@@ -56,16 +58,19 @@ public class UserEndpoints {
     Log.writeLog(this.getClass().getName(), this, "Get all users", 0);
 
     // Get a list of users
-    ArrayList<User> users = userController.getUsers();
+    ArrayList<User> users = UserController.getUsers();
 
     // TODO: Add Encryption to JSON - FIXED
     // Transfer users to json in order to return it to the user
     String json = new Gson().toJson(users);
-    //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
+    json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
 
     // Return the users with the status code 200
     return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(json).build();
   }
+
+
+
 
   @POST
   @Path("/createUser")
@@ -81,8 +86,6 @@ public class UserEndpoints {
     // Get the user back with the added ID and return it to the user
     String json = new Gson().toJson(createUser);
 
-    // TODO: Add encryption
-
     // Return the data to the user
     if (createUser != null) {
       // Return a response with status 200 and JSON as type
@@ -95,14 +98,14 @@ public class UserEndpoints {
 
   // TODO: Make the system able to login users and assign them a token to use throughout the system. -Fixed
   @POST
-  @Path("/login")
+  @Path("/loginUser")
   @Consumes(MediaType.APPLICATION_JSON)
   public Response loginUser(String body) {
 
     // Read the json from body and transfer it to a user class
     User user = new Gson().fromJson(body, User.class);
 
-    // Get the user back with addet id and return to the user
+    // Get the user back with added id and return to the user
     String token = userController.loginUser(user);
 
     // Return the data to the user
@@ -115,9 +118,9 @@ public class UserEndpoints {
     }
   }
 
-  // TODO: Make the system able to delete users
+  // TODO: Make the system able to delete users - Fixed
   @DELETE
-  @Path("/delete")
+  @Path("/deleteUser")
   public Response deleteUser(String body) {
 
       User user = new Gson (). fromJson(body, User.class);
@@ -133,7 +136,7 @@ public class UserEndpoints {
     }
   }
 
-  // TODO: Make the system able to update users
+  // TODO: Make the system able to update users -Fixed
   @POST
   @Path("/updateUser")
   @Consumes(MediaType.APPLICATION_JSON)

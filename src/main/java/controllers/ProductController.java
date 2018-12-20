@@ -2,10 +2,8 @@ package controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+
 
 import cache.ProductCache;
 import model.Product;
@@ -18,11 +16,18 @@ public class ProductController {
 
   public ProductController() {
     dbCon = new DatabaseController();
-    productCache = new ProductCache();
+    productCache = getProductCache();
+  }
+
+  public static ProductCache getProductCache () {
+    if (productCache == null) {
+      productCache = new ProductCache();
+    }
+    return productCache;
   }
 
   public static Product getProduct(int id) {
-    for (Product product : productCache.getProducts(false)) {
+    for (Product product : getProductCache().getProducts(false)) {
       if (product.getId() == id) {
         // product found in cache
         return product;
@@ -33,7 +38,7 @@ public class ProductController {
     Product productFoundInDb = getProductFromDb(id);
     if (productFoundInDb != null) {
       // Add product found in database into cache
-      productCache.addProduct(productFoundInDb);
+      getProductCache().addProduct(productFoundInDb);
     }
     return productFoundInDb;
   }
@@ -45,7 +50,7 @@ public class ProductController {
   }
 
   public static Product getProductBySku(String sku) {
-    for (Product product : productCache.getProducts(false)) {
+    for (Product product : getProductCache().getProducts(false)) {
       if (product.getSku() == sku) {
         // product found in cache
         return product;
@@ -56,7 +61,7 @@ public class ProductController {
     Product productFoundInDb = getProductBySkuFromDb(sku);
     if (productFoundInDb != null) {
       // Add product found in database into cache
-      productCache.addProduct(productFoundInDb);
+      getProductCache().addProduct(productFoundInDb);
     }
     return productFoundInDb;
   }
@@ -88,7 +93,7 @@ public class ProductController {
                 rs.getFloat("price"),
                 rs.getString("description"),
                 rs.getInt("stock"),
-                rs.getTimestamp("created_at"));
+                rs.getLong("created_at"));
       } else {
         // Changed to log
         Log.writeLog(ProductController.class.getName(), null,"No product found", 0);
@@ -108,7 +113,7 @@ public class ProductController {
    */
   public static ArrayList<Product> getProducts() {
     // TODO: Use caching layer. - Fixed
-    return productCache.getProducts(false);
+    return getProductCache().getProducts(false);
   }
 
   /**
@@ -133,7 +138,7 @@ public class ProductController {
                 rs.getFloat("price"),
                 rs.getString("description"),
                 rs.getInt("stock"),
-                rs.getTimestamp("created_at"));
+                rs.getLong("created_at"));
 
         products.add(product);
       }
@@ -144,10 +149,6 @@ public class ProductController {
     return products;
   }
 
-  public static String DateToTimeStamp(Date date) {
-    Timestamp sq = new Timestamp(date.getTime());
-    return sq.toString();
-  }
 
   public static Product createProduct(Product product) {
 
@@ -155,7 +156,7 @@ public class ProductController {
     Log.writeLog(ProductController.class.getName(), product, "Actually creating a product in DB", 0);
 
     // Set creation time for product.
-    //product.setCreatedTime(System.currentTimeMillis() / 1000L);
+    product.setCreatedTime(System.currentTimeMillis() / 1000L);
 
     // Check for DB Connection
     checkConnection();
@@ -170,9 +171,9 @@ public class ProductController {
             + product.getDescription()
             + "', "
             + product.getStock()
-            + ", '"
-            + DateToTimeStamp(product.getCreatedTime())
-            + "')";
+            + ", "
+            + product.getCreatedTime()
+            + ")";
 
     // Insert the product in the DB
     int productID = dbCon.insert(sql);
@@ -181,7 +182,7 @@ public class ProductController {
       //Update the productid of the product before returning
       product.setId(productID);
       // add product to cache
-      productCache.addProduct(product);
+      getProductCache().addProduct(product);
     } else{
       // Return null if product has not been inserted into database
       return null;

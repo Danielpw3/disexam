@@ -25,7 +25,7 @@ public class OrderCache {
                 ||((this.created + this.ttl) <= (System.currentTimeMillis()/1000L)) // mindre end, istedet for og null, istedet ofte isEmpty
                 || this.orders == null) {
             // Read orders from the database
-            ArrayList <Order> orders = OrderController.getOrdersFromDb();
+            ArrayList <Order> orders = OrderController.getOrdersFromdb();
 
             this.orders = orders;
             this.created = System.currentTimeMillis()/1000L;

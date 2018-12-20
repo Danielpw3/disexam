@@ -11,8 +11,8 @@ public class Order {
   private Address billingAddress;
   private Address shippingAddress;
   private float orderTotal;
-  private Date createdAt;
-  private Date updatedAt;
+  private long createdAt;
+  private long updatedAt;
 
   public Order() {}
 
@@ -22,8 +22,8 @@ public class Order {
       Address billingAddress,
       Address shippingAddress,
       float orderTotal,
-      Date createdAt,
-      Date updatedAt) {
+      long createdAt,
+      long updatedAt) {
     this.customer = customer;
     this.lineItems = lineItems;
     this.billingAddress = billingAddress;
@@ -40,8 +40,8 @@ public class Order {
       Address billingAddress,
       Address shippingAddress,
       float orderTotal,
-      Date createdAt,
-      Date updatedAt) {
+      long createdAt,
+      long updatedAt) {
     this.id = id;
     this.customer = customer;
     this.lineItems = lineItems;
@@ -100,19 +100,19 @@ public class Order {
     this.orderTotal = orderTotal;
   }
 
-  public Date getCreatedAt() {
+  public Long getCreatedAt() {
     return createdAt;
   }
 
-  public void setCreatedAt(Date createdAt) {
+  public void setCreatedAt(Long createdAt) {
     this.createdAt = createdAt;
   }
 
-  public Date getUpdatedAt() {
+  public Long getUpdatedAt() {
     return updatedAt;
   }
 
-  public void setUpdatedAt(Date updatedAt) {
+  public void setUpdatedAt(Long updatedAt) {
     this.updatedAt = updatedAt;
   }
 

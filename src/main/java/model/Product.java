@@ -10,7 +10,7 @@ public class Product {
   public float price;
   private String description;
   private int stock;
-  private Date createdTime; // skal laves om til Date
+  private long createdTime;
 
   // Used when creating product
   public Product(int id, String name, String sku, float price, String description, int stock) {
@@ -20,11 +20,11 @@ public class Product {
     this.price = price;
     this.description = description;
     this.stock = stock;
-    this.createdTime = new Date(System.currentTimeMillis()/1000L);
+    this.createdTime = System.currentTimeMillis()/1000L;
   }
 
   // Used when reading from database
-  public Product(int id, String name, String sku, float price, String description, int stock, Date createdTime) {
+  public Product(int id, String name, String sku, float price, String description, int stock, long createdTime) {
     this.id = id;
     this.name = name;
     this.sku = sku;
@@ -74,11 +74,11 @@ public class Product {
     this.description = description;
   }
 
-  public Date getCreatedTime() {
+  public long getCreatedTime() {
     return createdTime;
   }
 
-  public void setCreatedTime(Date createdTime) {
+  public void setCreatedTime(long createdTime) {
     this.createdTime = createdTime;
   }
 

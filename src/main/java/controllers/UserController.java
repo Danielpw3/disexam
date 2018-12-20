@@ -23,13 +23,20 @@ public class UserController {
 
   public UserController() {
     dbCon = new DatabaseController();
-    userCache = new UserCache();
+    userCache =  getUserCache();
   }
 
   private static Hashing hash = new Hashing();  //Hashing objekt -D
 
+  public static UserCache getUserCache () {
+    if (userCache == null){
+      userCache = new UserCache();
+    }
+    return userCache;
+  }
+
   public static User getUser(int id) {
-    for (User user : userCache.getUsers(false)) {
+    for (User user : getUserCache().getUsers(false)) {
       if (user.getId() == id) {
         // user found in cache
         return user;
@@ -69,9 +76,7 @@ public class UserController {
                 rs.getString("last_name"), // remove komma
                 rs.getString("password"),
                 rs.getString("email"),
-                rs.getInt("phone_number"),
-                rs.getInt("salt"),
-                rs.getTimestamp("created_at"));
+                rs.getLong("created_at"));
 
         // return the create object
         return user;
@@ -87,10 +92,11 @@ public class UserController {
     return user;
   }
 
-  // get all users from cache
+
+  //get all users from cache
   public static ArrayList<User> getUsers() {
-    return userCache.getUsers(false);
-  }
+    return getUserCache().getUsers(false);
+ }
   /**
    * Get all users in database
    *
@@ -120,9 +126,7 @@ public class UserController {
                 rs.getString("last_name"),
                 rs.getString("password"),
                 rs.getString("email"),
-                rs.getInt("phone_number"),
-                rs.getInt("salt"),
-                rs.getTimestamp("created_at"));
+                rs.getLong("created_at"));
 
         // Add element to list
         users.add(user);
@@ -146,7 +150,7 @@ public class UserController {
     Log.writeLog(UserController.class.getName(), user, "Actually creating a user in DB", 0);
 
     // Set creation time for user - now set in constructor
-    //user.setCreatedTime(System.currentTimeMillis() / 1000L);
+    user.setCreatedTime(System.currentTimeMillis() / 1000L);
 
     // Check for DB Connection
     if (dbCon == null) {
@@ -157,7 +161,7 @@ public class UserController {
     // Insert the user in the DB
     // TODO: Hash the user password before saving it. - FIXED
     int userID = dbCon.insert(
-        "INSERT INTO user(first_name, last_name, password, email, phone_number, salt, created_at) VALUES('"
+        "INSERT INTO user(first_name, last_name, password, email, created_at) VALUES('"
             + user.getFirstname()
             + "', '"
             + user.getLastname()
@@ -166,18 +170,14 @@ public class UserController {
             + "', '"
             + user.getEmail()
             + "', "
-            + user.getPhoneNumber()
-            + ", "
-            + user.getSalt()
-            + ", '"
             + user.getCreatedTime()
-            + "')");
+            + ")");
 
     if (userID != 0) {
       //Update the userid of the user before returning
       user.setId(userID);
       // Add user to cache
-      userCache.addUser(user);
+      getUserCache().addUser(user);
     } else{
       // Return null if user has not been inserted into database
       return null;
@@ -193,11 +193,6 @@ public class UserController {
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
-
-    // Build the query for DB'
-    //String sqlsalt = "SELECT salt FROM user where email = '" + user.getEmail() + "'";
-    //dbCon.insert(sqlsalt);
-    //ResultSet rs = dbCon.query(sqlsalt);
 
     // Build the query for DB'
     String sql = "SELECT * FROM user where email = '" + user.getEmail() + "'AND password = '" + hash.hashWithSalt(user.getPassword()) + "'";
@@ -217,9 +212,7 @@ public class UserController {
                         rs.getString("first_name"),
                         rs.getString("last_name"),
                         rs.getString("password"),
-                        rs.getString("email"),
-                        rs.getInt("phone_number"),
-                        rs.getInt("salt"));
+                        rs.getString("email"));
                 if (userlogin != null) {
                   try {
                     Algorithm algorithm = Algorithm.HMAC256("secret");
@@ -249,7 +242,6 @@ public class UserController {
       dbCon = new DatabaseController();
     }
 
-    // Comment
     DecodedJWT jwt = null;
 
     try {
@@ -266,7 +258,7 @@ public class UserController {
     boolean result = dbCon.insert(sql) == 1;
     if (result) {
       // delete user from cache
-      userCache.deleteUser(id);
+      getUserCache().deleteUser(id);
     }
     return result;
   }
@@ -280,7 +272,6 @@ public class UserController {
       dbCon = new DatabaseController();
     }
 
-    // comment
     DecodedJWT jwt = null;
 
     try {
@@ -297,12 +288,12 @@ public class UserController {
             + "', last_name = '" + user.getLastname()
             + "', password = '" + hashing.hashWithSalt(user.getPassword())
             + "', email = '" + user.getEmail()
-            + "' WHERE id = " + jwt.getClaim("userid").asInt();
+            + " WHERE id = " + jwt.getClaim("userid").asInt();
 
     boolean result = dbCon.insert(sql) == 1;
     if (result) {
       // update user in cache
-      userCache.updateUser(user);
+      getUserCache().updateUser(user);
     }
     return result;
   }

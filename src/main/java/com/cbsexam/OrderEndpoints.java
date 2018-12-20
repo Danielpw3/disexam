@@ -31,12 +31,12 @@ public class OrderEndpoints {
   public Response getOrder(@PathParam("idOrder") int idOrder) {
 
     // Call our controller-layer in order to get the order from the DB
-    Order order = orderController.getOrder(idOrder);
+    Order order = OrderController.getOrder(idOrder);
 
     // TODO: Add Encryption to JSON - FIXED
     // We convert the java object to json with GSON library imported in Maven
     String json = new Gson().toJson(order);
-    //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
+    json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
 
     // Return a response with status 200 and JSON as type
     return Response.status(order != null ? Response.Status.OK : Response.Status.NOT_FOUND).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
@@ -48,12 +48,12 @@ public class OrderEndpoints {
   public Response getOrders() {
 
     // Call our controller-layer in order to get the order from the DB
-    ArrayList<Order> orders = orderController.getOrders();
+    ArrayList<Order> orders = OrderController.getOrders();
 
     // TODO: Add Encryption to JSON - FIXED
     // We convert the java object to json with GSON library imported in Maven
     String json = new Gson().toJson(orders);
-    //json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
+    json = Encryption.encryptDecryptXOR(json); //add encryption to JSON -D
 
     // Return a response with status 200 and JSON as type
     return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
@@ -80,7 +80,7 @@ public class OrderEndpoints {
     } else {
 
       // Return a response with status 400 and a message in text
-      return Response.status(Response.Status.BAD_REQUEST).entity("Could not create user").build();
+      return Response.status(Response.Status.BAD_REQUEST).entity("Could not create order").build();
     }
   }
 }
